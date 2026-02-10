@@ -129,3 +129,19 @@ int[][] edges = new int[m][3]; // {from, to, weight}
 **코테 포인트**
 - 자동완성, 문자열 검색
 - 카카오 기출 빈출
+
+---
+
+## 09. 스트림 (Stream)
+
+**코테에서 자주 쓰는 패턴**
+- 배열 변환: `int[]` ↔ `List<Integer>` ↔ `Integer[]`
+- 정렬/중복제거: `sorted()`, `distinct()`
+- 필터/변환: `filter()`, `map()`, `mapToInt()`
+- 집계: `sum()`, `max()`, `min()`, `count()`, `average()`
+- 수집: `toList()`, `toSet()`, `toMap()`, `groupingBy()`, `joining()`
+
+**프로그래머스 필수**
+- 빈도수 카운팅 → `groupingBy` + `counting`
+- 문자열 조합 → `joining(",")`
+- 조건 검색 → `filter` + `findFirst`
