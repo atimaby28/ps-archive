@@ -14,8 +14,8 @@ public class BJ_3190_뱀 {
     static int[][] map;
     static boolean[][] isSnake;
 
-    static int[] dx = {1, -1, 0, 0};
-    static int[] dy = {0, 0, 1, -1};
+    static int[] dx = {1, 0, -1, 0};
+    static int[] dy = {0, 1, 0, -1};
 
     static Queue<TurnQueue> turnQueue;
 
@@ -74,25 +74,25 @@ public class BJ_3190_뱀 {
             int ny = cur[0] + dy[direction];
             int nx = cur[1] + dx[direction];
 
-            if (nx < 1 || nx > N || ny < 1 || ny > N || map[ny][nx] == 1) break;
-
-            snake.addFirst(new int[]{ny, nx});
-
-            if (map[ny][nx] != 2) {
-                snake.pollLast();
-                isSnake[cur[0]][cur[1]] = false;
-            }
-
             time++;
 
-            if (ny == snake.peekLast()[0] && nx == snake.peekLast()[1]) break;
+            if (nx < 1 || nx > N || ny < 1 || ny > N) break;
 
+            if (isSnake[ny][nx]) break;
+
+            if (map[ny][nx] != 2) {
+                int[] tail = snake.pollLast();
+                isSnake[tail[0]][tail[1]] = false;
+            } else map[ny][nx] = 0;
+
+            snake.addFirst(new int[]{ny, nx});
             isSnake[ny][nx] = true;
 
             if (!turnQueue.isEmpty() && turnQueue.peek().time == time) {
                 if (turnQueue.peek().direction == 'D') direction = (direction + 1) % 4;
                 else direction = (direction + 3) % 4;
 
+                turnQueue.poll();
             }
         }
 
