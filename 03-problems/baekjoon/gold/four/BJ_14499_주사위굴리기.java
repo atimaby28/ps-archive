@@ -6,29 +6,29 @@ import java.util.StringTokenizer;
 public class BJ_14499_주사위굴리기 {
 
     static int N, M, K;
-    static int[] dice;
+    static int[] dice = new int[7];
     static int[][] map;
+    static int[] command;
 
-    static final int TOP = 0, EAST = 1, WEST = 2, NORTH = 3, SOUTH = 4, BOTTOM = 5;
+    static int[] dx = {1, -1, 0, 0};
+    static int[] dy = {0, 0, -1, 1};
 
-    static int[] dx = {0, 1, -1, 0, 0};
-    static int[] dy = {0, 0, 0, -1, 1};
+    static final int TOP = 1, NORTH = 2, EAST = 3, WEST = 4, SOUTH = 5, BOTTOM = 6;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
 
         StringTokenizer st = new StringTokenizer(br.readLine());
-
+        
         N = Integer.parseInt(st.nextToken());
         M = Integer.parseInt(st.nextToken());
-
-        int y = Integer.parseInt(st.nextToken());
         int x = Integer.parseInt(st.nextToken());
-
+        int y = Integer.parseInt(st.nextToken());
         K = Integer.parseInt(st.nextToken());
 
         map = new int[N][M];
+        command = new int[K];
 
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
@@ -37,44 +37,41 @@ public class BJ_14499_주사위굴리기 {
             }
         }
 
-        int[] commands = new int[K];
-
         st = new StringTokenizer(br.readLine());
         for (int i = 0; i < K; i++) {
-            commands[i] = Integer.parseInt(st.nextToken());
+            command[i] = Integer.parseInt(st.nextToken());
         }
 
-        String result = solution(x, y, commands);
+        String result = solution(x, y);
 
-        bw.write(result + "\n");
+        bw.write(result);
 
         bw.flush();
+
         bw.close();
         br.close();
     }
 
-    private static String solution(int x, int y, int[] commands) {
+    private static String solution(int y, int x) {
         StringBuilder sb = new StringBuilder();
 
-        dice = new int[7];
-
-        for (int command : commands) {
-            int nx = x + dx[command];
-            int ny = y + dy[command];
+        for (int i = 0; i < K; i++) {
+            int nx = x + dx[command[i] - 1];
+            int ny = y + dy[command[i] - 1];
 
             if (nx < 0 || nx >= M || ny < 0 || ny >= N) continue;
 
-            rolling(command);
+            rolling(command[i]);
+
+            if (map[ny][nx] == 0) {
+                map[ny][nx] = dice[BOTTOM];
+            } else {
+                dice[BOTTOM] = map[ny][nx];
+                map[ny][nx] = 0;
+            }
 
             x = nx;
             y = ny;
-
-            if (map[y][x] == 0) {
-                map[y][x] = dice[BOTTOM];
-            } else {
-                dice[BOTTOM] = map[y][x];
-                map[y][x] = 0;
-            }
 
             sb.append(dice[TOP]).append("\n");
         }
@@ -82,32 +79,39 @@ public class BJ_14499_주사위굴리기 {
         return sb.toString();
     }
 
-    private static void rolling(int direction) {
-        int top = dice[TOP], bottom = dice[BOTTOM], north = dice[NORTH],
-        east = dice[EAST], west = dice[WEST], south = dice[SOUTH];
+    private static void rolling(int command) {
+        int temp;
 
-        switch (direction) {
-            case EAST -> {
-                dice[TOP] = west;
-                dice[EAST] = top;
-                dice[BOTTOM] = east;
-                dice[WEST] = bottom;
-            } case WEST -> {
-                dice[TOP] = east;
-                dice[EAST] = bottom;
-                dice[BOTTOM] = west;
-                dice[WEST] = top;
-            } case NORTH -> {
-                dice[TOP] = south;
-                dice[NORTH] = top;
-                dice[SOUTH] = bottom;
-                dice[BOTTOM] = north;
-            } case SOUTH -> {
-                dice[TOP] = north;
-                dice[NORTH] = bottom;
-                dice[SOUTH] = top;
-                dice[BOTTOM] = south;
+        switch (command) {
+            case 1 -> { // 동
+                temp = dice[TOP];
+                dice[TOP] = dice[WEST];
+                dice[WEST] = dice[BOTTOM];
+                dice[BOTTOM] = dice[EAST];
+                dice[EAST] = temp;
             }
+            case 2 -> { // 서
+                temp = dice[TOP];
+                dice[TOP] = dice[EAST];
+                dice[EAST] = dice[BOTTOM];
+                dice[BOTTOM] = dice[WEST];
+                dice[WEST] = temp;
+            }
+            case 3 -> { // 북
+                temp = dice[TOP];
+                dice[TOP] = dice[SOUTH];
+                dice[SOUTH] = dice[BOTTOM];
+                dice[BOTTOM] = dice[NORTH];
+                dice[NORTH] = temp;
+            }
+            case 4 -> { // 남
+                temp = dice[TOP];
+                dice[TOP] = dice[NORTH];
+                dice[NORTH] = dice[BOTTOM];
+                dice[BOTTOM] = dice[SOUTH];
+                dice[SOUTH] = temp;
+            }
+            default -> {}
         }
     }
 }
