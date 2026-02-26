@@ -36,7 +36,7 @@ public class BJ_14891_톱니바퀴 {
         }
 
         for (int i = 0; i < gearCount; i++) {
-            if (gears[i][0] == 1) result += (int) Math.pow(2, i);
+            if (gears[i][0] == 1) result += 1 << i;
         }
 
         bw.write(result + "\n");
@@ -47,45 +47,43 @@ public class BJ_14891_톱니바퀴 {
         br.close();
     }
 
-    private static void solution(int idx, int dir) {
-        int[] rotations = new int[gearCount];
-        rotations[idx] = dir;
+    private static void solution(int index, int dir) {
+        int[] dirs = new int[gearCount];
+        dirs[index] = dir;
 
-        // 왼쪽 전파
-        for (int i = idx; i > 0; i--) {
-            if (gears[i - 1][2] != gears[i][6]) {
-                rotations[i - 1] = -rotations[i];
-            } else break;
-        }
+        propagate(index, dirs);
 
-        // 오른쪽 전파
-        for (int i = idx; i < gearCount - 1; i++) {
-            if (gears[i][2] != gears[i + 1][6]) {
-                rotations[i + 1] = -rotations[i];
-            } else break;
-        }
-
-        // 한번에 회전
         for (int i = 0; i < gearCount; i++) {
-            if (rotations[i] != 0) rotate(i, rotations[i]);
+            if (dirs[i] == 0) continue;
+            rotate(i, dirs[i]);
         }
 
     }
 
-    private static void rotate(int idx, int rotation) {
-        if (rotation == 1) {
-            int temp = gears[idx][cog - 1];
+    private static void rotate(int index, int d) {
+        if (d == 1) {
+            int temp = gears[index][cog - 1];
             for (int i = cog - 1; i > 0; i--) {
-                gears[idx][i] = gears[idx][i - 1];
+                gears[index][i] = gears[index][i - 1];
             }
-            gears[idx][0] = temp;
+            gears[index][0] = temp;
         } else {
-            int temp = gears[idx][0];
+            int temp = gears[index][0];
             for (int i = 0; i < cog - 1; i++) {
-                gears[idx][i] = gears[idx][i + 1];
+                gears[index][i] = gears[index][i + 1];
             }
-            gears[idx][cog - 1] = temp;
+            gears[index][cog - 1] = temp;
         }
     }
 
+    private static void propagate(int index, int[] dirs) {
+        for (int i = index - 1; i >= 0; i--) {
+            if (gears[i][2] != gears[i + 1][6]) dirs[i] = -dirs[i + 1];
+            else break;
+        }
+        for (int i = index + 1; i < gearCount; i++) {
+            if (gears[i][6] != gears[i - 1][2]) dirs[i] = -dirs[i - 1];
+            else break;
+        }
+    }
 }
