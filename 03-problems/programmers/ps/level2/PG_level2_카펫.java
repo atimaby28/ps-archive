@@ -28,7 +28,7 @@ public class PG_level2_카펫 {
 
         int total = brown + yellow;
 
-        for (int i = 3; i <= Math.sqrt(total); i++) {
+        for (int i = 3; i * i <= total; i++) {
             if (total % i == 0 && ((i - 2) * ((total / i) - 2)) == yellow) {
                 return new int[] { (total / i), i};
             }
