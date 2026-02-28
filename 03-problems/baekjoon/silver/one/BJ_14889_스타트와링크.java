@@ -44,15 +44,8 @@ public class BJ_14889_스타트와링크 {
 
     private static void search(int depth, int index, boolean[] result) {
         if (depth == N / 2) {
-            int teamStart = 0, teamLink = 0;
-            for (int i = 0; i < N; i++) {
-                for (int j = i + 1; j < N; j++) {
-                    if (result[i] && result[j]) teamStart += skills[i][j] + skills[j][i];
-                    else if (!result[i] && !result[j]) teamLink += skills[i][j] + skills[j][i];
-                }
-            }
 
-            answer = Math.min(answer, Math.abs(teamStart - teamLink));
+            answer = Math.min(answer, getMinScore(result));
 
             return;
         }
@@ -62,5 +55,18 @@ public class BJ_14889_스타트와링크 {
             search(depth + 1, i + 1, result);
             result[i] = false;
         }
+    }
+
+    private static int getMinScore(boolean[] result) {
+        int startTeam = 0, linkTeam = 0;
+
+        for (int i = 0; i < N; i++) {
+            for (int j = i + 1; j < N; j++) {
+                if (result[i] && result[j]) startTeam += skills[i][j] + skills[j][i];
+                else if (!result[i] && !result[j]) linkTeam += skills[i][j] + skills[j][i];
+            }
+        }
+
+        return Math.abs(startTeam - linkTeam);
     }
 }
