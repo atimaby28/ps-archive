@@ -30,4 +30,5 @@ replay_pid*
 .iml
 
 # idea
-.idea/
+.idea/out/
+*.iml
