@@ -1,4 +1,4 @@
-package programmers.ps.level2;
+package programmers.level2;
 
 import java.io.*;
 import java.util.StringTokenizer;
