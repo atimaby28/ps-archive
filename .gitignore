@@ -26,10 +26,9 @@ replay_pid*
 # DS_Store
 .DS_Store
 
-# iml
-.iml
-
-# idea
-.idea/out/
+# IntelliJ build output
+out/
 *.iml
+
+# IntelliJ settings
 .idea/
