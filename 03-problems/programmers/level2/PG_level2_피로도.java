@@ -41,14 +41,13 @@ public class PG_level2_피로도 {
     }
 
     private static void dfs(int depth, int curFatigue, int[][] dungeons, boolean[] visited) {
-        if (depth == dungeons.length) {
-            clearedDungeons = Math.max(clearedDungeons, depth);
-            return;
-        }
+
+        clearedDungeons = Math.max(clearedDungeons, depth);
 
         for (int i = 0; i < dungeons.length; i++) {
             if (visited[i] || curFatigue < dungeons[i][0]) continue;
             visited[i] = true;
+
             dfs(depth + 1, curFatigue - dungeons[i][1], dungeons, visited);
             visited[i] = false;
         }
