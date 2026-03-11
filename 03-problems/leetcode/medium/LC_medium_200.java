@@ -1,4 +1,4 @@
-package leetcode;
+package leetcode.medium;
 
 import java.io.*;
 import java.util.ArrayDeque;
