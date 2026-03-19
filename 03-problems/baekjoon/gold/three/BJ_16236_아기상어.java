@@ -7,10 +7,10 @@ public class BJ_16236_아기상어 {
 
     static int N;
     static int[][] map;
-    static boolean[][] visited;
+    static final int BABY_SHARK = 9;
 
-    static int[] dr = {-1, 0, 1, 0};
-    static int[] dc = {0, -1, 0, 1};
+    static int[] dr = {-1, 1, 0, 0};
+    static int[] dc = {0, 0, -1, 1};
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -21,15 +21,13 @@ public class BJ_16236_아기상어 {
         N = Integer.parseInt(br.readLine());
 
         map = new int[N][N];
-        visited = new boolean[N][N];
         BabyShark babyShark = null;
 
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < N; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
-
-                if (map[i][j] == 9) {
+                if (map[i][j] == BABY_SHARK) {
                     babyShark = new BabyShark(i, j, 2);
                     map[i][j] = 0;
                 }
@@ -47,101 +45,115 @@ public class BJ_16236_아기상어 {
     }
 
     private static int solution(BabyShark babyShark) {
+        int time = 0;
 
-        // 자신의 크기와 같은 수의 물고기를 먹을 때 마다 크기가 1 증가한다.
-        // 물고기를 먹으면, 그 칸은 빈 칸이 된다.
-        // 아기 상어가 몇 초 동안 엄마 상어에게 도움을 요청하지 않고 물고기를 잡아먹을 수 있는지
+        while (true) {
+            // BFS로 먹을 수 있는 물고기 후보 전부 탐색
+            List<Fish> fishes = searchFish(babyShark, new boolean[N][N]);
+            // 후보가 없으면 종료
+            if (fishes.isEmpty()) break;
 
-        // 더 이상 먹을 수 있는 물고기가 공간에 없다면 종료
-        // 먹을 수 있는 물고기가 1마리라면, 그 물고기를 먹으러 간다.
-        // 먹을 수 있는 물고기가 1마리보다 많다면, 거리가 가장 가까운 물고기를 먹으러 간다.
-        //   거리는 아기 상어가 있는 칸에서 물고기가 있는 칸으로 이동할 때, 지나야하는 칸의 개수의 최솟값이다.
-        //   거리가 가까운 물고기가 많다면, 가장 위에 있는 물고기, 그러한 물고기가 여러마리라면, 가장 왼쪽에 있는 물고기를 먹는다.
-        return bfs(babyShark);
-    }
+            // 후보가 있으면 정렬
+            Collections.sort(fishes);
+            // 정렬 후 가장 가까운 물고기 한마리 먹고 다시 물고기 탐색
+            Fish nearestFish = fishes.get(0);
 
-    private static int bfs(BabyShark babyShark) {
-        int totalTime = 0;
+            babyShark.eat(nearestFish.row, nearestFish.col);
 
-        while(true) {
-            Queue<int[]> queue = new ArrayDeque<>();
-            List<int[]> fishList = new ArrayList<>();
-
-            queue.offer(new int[]{babyShark.row, babyShark.col});
-            visited[babyShark.row][babyShark.col] = true;
-
-            int distance = 0;
-            while (!queue.isEmpty()) {
-                int size = queue.size();
-
-                for (int k = 0; k < size; k++) {
-                    int[] cur = queue.poll();
-
-                    int curR = cur[0];
-                    int curC = cur[1];
-
-                    for (int index = 0; index < 4; index++) {
-                        int newR = curR + dr[index];
-                        int newC = curC + dc[index];
-
-                        if (newR < 0 || newR >= N || newC < 0 || newC >= N) continue;
-                        if (!babyShark.canPass(map[newR][newC]) || visited[newR][newC]) continue;
-
-                        visited[newR][newC] = true;
-                        queue.offer(new int[]{newR, newC});
-
-                        if (babyShark.canEat(map[newR][newC])) {
-                            fishList.add(new int[]{newR, newC});
-                        }
-                    }
-                }
-                distance++;
-                if (!fishList.isEmpty()) break;
-            }
-            if (fishList.isEmpty()) break;
-
-            totalTime += distance;
-            fishList.sort(Comparator.comparingInt((int[] a) -> a[0]).thenComparingInt(a -> a[1]));
-
-            int[] fish = fishList.get(0);
-
-            babyShark.row = fish[0];
-            babyShark.col = fish[1];
-
-            babyShark.eat();
-            map[babyShark.row][babyShark.col] = 0;
-            visited = new boolean[N][N];
+            time += nearestFish.distance;
         }
 
-        return totalTime;
+        return time;
     }
 
+    private static List<Fish> searchFish(BabyShark babyShark, boolean[][] visited) {
+        Queue<int[]> queue = new ArrayDeque<>();
+        List<Fish> fishes = new ArrayList<>();
+
+        queue.offer(new int[]{babyShark.row, babyShark.col, 0});
+        visited[babyShark.row][babyShark.col] = true;
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+
+            int curRow = cur[0];
+            int curCol = cur[1];
+            int curDistance = cur[2];
+
+            for (int d = 0; d < 4; d++) {
+                int newRow = curRow + dr[d];
+                int newCol = curCol + dc[d];
+
+                if (newRow < 0 || newRow >= N || newCol < 0 || newCol >= N) continue;
+                if (visited[newRow][newCol]) continue;
+                if (!babyShark.isPassed(map[newRow][newCol])) continue;
+
+                if (babyShark.canEat(map[newRow][newCol])) fishes.add(new Fish(newRow, newCol, curDistance + 1));
+
+                visited[newRow][newCol] = true;
+                queue.offer(new int[]{newRow, newCol, curDistance + 1});
+            }
+        }
+
+        return fishes;
+    }
+
+    // 자기보다 작은 물고기만 먹을수 있다.
+    // 자신의 크기보다 큰 물고기가 있는 칸은 지나갈 수 없다.
+    // 자신의 크기와 같은 수의 물고기를 먹을 때 마다 크기가 1 증가한다.
     static class BabyShark {
         int row, col;
-        int size;
-        int eatCount;
+        int size, eatCount;
 
-        BabyShark(int row, int col, int size) {
+        public BabyShark(int row, int col, int size) {
             this.row = row;
             this.col = col;
             this.size = size;
             this.eatCount = 0;
         }
 
-        boolean canEat(int fish) {
-            return fish > 0 && fish < size;
+        // 지나갈 수 있는지
+        public boolean isPassed (int fishSize) {
+            return fishSize <= this.size;
         }
 
-        boolean canPass(int cell) {
-            return cell <= size;
+        // 먹을 수 있는지
+        public boolean canEat(int fishSize) {
+            return fishSize > 0 && fishSize < this.size;
         }
 
-        void eat() {
+        // 먹는 동작
+        public void eat(int row, int col) {
             eatCount++;
+
+            this.row = row;
+            this.col = col;
+
+            map[row][col] = 0;
+
             if (eatCount == size) {
                 size++;
                 eatCount = 0;
             }
+        }
+    }
+
+    static class Fish implements Comparable<Fish>{
+        int row, col;
+        int distance;
+
+        public Fish (int row, int col, int distance) {
+            this.row = row;
+            this.col = col;
+            this.distance = distance;
+        }
+
+        // 거리, 행, 열 순
+        @Override
+        public int compareTo(Fish f) {
+            if (this.distance != f.distance) return Integer.compare(this.distance, f.distance);
+            if (this.row != f.row) return Integer.compare(this.row, f.row);
+            return Integer.compare(this.col, f.col);
         }
     }
 }
