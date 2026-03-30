@@ -56,7 +56,7 @@ public class BJ_15684_사다리조작 {
         for (int pos = start; pos < H * (N - 1); pos++) {
             int h = pos / (N - 1) + 1;
             int v = pos % (N - 1) + 1;
-            if (!map[h][v] && !map[h][v - 1] && (v + 1 < N && !map[h][v + 1])) {
+            if (!map[h][v - 1] &&  !map[h][v] && !map[h][v + 1]) {
                 map[h][v] = true;
                 if (dfs(depth + 1,pos + 1, target)) return true;
                 map[h][v] = false;

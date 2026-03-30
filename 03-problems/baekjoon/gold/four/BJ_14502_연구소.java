@@ -7,12 +7,12 @@ public class BJ_14502_연구소 {
 
     static int N, M;
     static int[][] lab;
-    static Queue<int[]> virus;
+    static int size;
 
-    static int safeZone = 0;
-    static final int MAX_WALL = 3;
+    static List<int[]> virus;
+    static final int LIMIT = 3;
 
-    static int[] dr = {-1, 1 , 0, 0};
+    static int[] dr = {-1, 1, 0, 0};
     static int[] dc = {0, 0, -1, 1};
 
     public static void main(String[] args) throws IOException {
@@ -25,13 +25,16 @@ public class BJ_14502_연구소 {
         M = Integer.parseInt(st.nextToken());
 
         lab = new int[N][M];
-        virus = new ArrayDeque<>();
+        virus = new ArrayList<>();
 
         for (int i = 0; i < N; i++) {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
                 lab[i][j] = Integer.parseInt(st.nextToken());
-                if (lab[i][j] == 2) virus.add(new int[] {i, j});
+
+                if (lab[i][j] == 2) {
+                    virus.add(new int[]{i, j});
+                }
             }
         }
 
@@ -46,67 +49,75 @@ public class BJ_14502_연구소 {
     }
 
     private static int solution() {
-        // 0: 빈칸, 1: 벽, 2: 바이러스
-        dfs(0, 0);
+        permutation(0, 0);
 
-        return safeZone;
+        return size;
     }
 
-    private static void dfs(int start, int wallCount) {
-        if (wallCount == MAX_WALL) {
-            int[][] copyLab = new int[N][M];
+    private static void permutation(int depth, int position) {
+        if (depth == LIMIT) {
+            int[][] labCopy = new int[N][M];
 
-            for (int i = 0; i < N; i++)
-                copyLab[i] = lab[i].clone();
+            for (int i = 0; i < N; i++) {
+                labCopy[i] = lab[i].clone();
+            }
 
-            safeZone = Math.max(safeZone, spreadVirus(copyLab));
+            spread(labCopy);
+            size = Math.max(size, count(labCopy));
             return;
         }
 
-        for (int i = start; i < N * M; i++) {
-            int r = i / M;
-            int c = i % M;
+        for (int i = position; i < N * M; i++) {
+            int row = i / M;
+            int col = i % M;
 
-            if (lab[r][c] != 0) continue;
+            if (lab[row][col] == 1 || lab[row][col] == 2) continue;
 
-            lab[r][c] = 1;
-            dfs(i + 1, wallCount + 1);
-            lab[r][c] = 0;
+            lab[row][col] = 1;
+            permutation(depth + 1, i + 1);
+            lab[row][col] = 0;
         }
     }
 
-    private static int spreadVirus(int[][] copyLab) {
-        int safeZone = 0;
-        Queue<int[]> newVirus = new ArrayDeque<>(virus);
+    // 0: empty, 1: wall, 2: virus
+    private static void spread(int[][] labCopy) {
+        Queue<int[]> queue = new LinkedList<>(virus);
 
-        while (!newVirus.isEmpty()) {
-            int size = newVirus.size();
+        while (!queue.isEmpty()) {
 
-            for (int k = 0; k < size; k++) {
-                int[] cur =  newVirus.poll();
+            int size = queue.size();
 
-                int curR = cur[0];
-                int curC = cur[1];
+            for (int i = 0; i < size; i++) {
+                int[] virusPos = queue.poll();
 
-                for (int i = 0; i < 4; i++) {
-                    int newR = curR + dr[i];
-                    int newC = curC + dc[i];
+                int row = virusPos[0];
+                int col = virusPos[1];
 
-                    if (newR < 0 || newR >= N || newC < 0 || newC >= M) continue;
-                    if (copyLab[newR][newC] != 0) continue;
+                for (int d = 0; d < 4; d++) {
+                    int newRow = row + dr[d];
+                    int newCol = col + dc[d];
 
-                    copyLab[newR][newC] = 2;
-                    newVirus.offer(new int[] {newR, newC});
+                    if (newRow < 0 || newRow >= N || newCol < 0 || newCol >= M) continue;
+                    if (labCopy[newRow][newCol] == 1 || labCopy[newRow][newCol] == 2) continue;
+
+                    labCopy[newRow][newCol] = 2;
+                    queue.offer(new int[]{newRow, newCol});
                 }
             }
         }
 
-        for (int i = 0; i < N; i++) {
-            for(int j = 0; j < M; j++) {
-                if (copyLab[i][j] == 0) safeZone++;
+    }
+
+    private static int count(int[][] labCopy) {
+        int count = 0;
+
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < M; c++) {
+                if (labCopy[r][c] == 0) count++;
             }
         }
 
-        return safeZone;
+        return count;
     }
+
 }
