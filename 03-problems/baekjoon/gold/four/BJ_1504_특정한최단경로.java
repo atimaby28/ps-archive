@@ -53,8 +53,8 @@ public class BJ_1504_특정한최단경로 {
         int[] distFromV1 = dijkstra(v1);
         int[] distFromV2 = dijkstra(v2);
 
-        long routeA = distFrom1[v1] + distFromV1[v2] + distFromV2[N];
-        long routeB = distFrom1[v2] + distFromV2[v1] + distFromV1[N];
+        long routeA = (long) distFrom1[v1] + distFromV1[v2] + distFromV2[N];
+        long routeB = (long) distFrom1[v2] + distFromV2[v1] + distFromV1[N];
 
         long answer = Math.min(routeA, routeB);
 
@@ -62,7 +62,7 @@ public class BJ_1504_특정한최단경로 {
     }
 
     private static int[] dijkstra(int start) {
-        PriorityQueue<Edge> pq = new PriorityQueue<>(Comparator.comparingInt(a -> a.cost));
+        PriorityQueue<Edge> pq = new PriorityQueue<>(Comparator.comparingInt(o -> o.cost));
 
         int[] dist = new int[N + 1];
 
