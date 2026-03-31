@@ -28,7 +28,8 @@ public class BJ_2573_빙산 {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
-                icebergs.offer(new Iceberg(i, j, map[i][j]));
+
+                if (map[i][j] != 0) icebergs.offer(new Iceberg(i, j, map[i][j]));
             }
         }
 
@@ -43,10 +44,14 @@ public class BJ_2573_빙산 {
     }
 
     private static int solution() {
-        // melting
+        int year = 1;
+
         while (!icebergs.isEmpty()) {
             int size = icebergs.size();
 
+            List<Iceberg> melt = new ArrayList<>();
+
+            // melting check
             for (int i = 0; i < size; i++) {
                 Iceberg cur = icebergs.poll();
 
@@ -58,16 +63,74 @@ public class BJ_2573_빙산 {
                     if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
                     if (map[nr][nc] != 0) continue;
 
-
+                    surface++;
                 }
+                if (cur.height - surface > 0) {
+                    icebergs.offer(new Iceberg(cur.r, cur.c, cur.height - surface));
+                } else {
+                    melt.add(cur);
+                }
+            }
 
+            for (Iceberg ib : melt) {
+                map[ib.r][ib.c] = 0;
+            }
+
+            // melting
+            for (Iceberg ib : icebergs) {
+                map[ib.r][ib.c] = ib.height;
             }
 
             // isDivided
+            if (isDivided()) return year;
+
+            year++;
         }
 
         return 0;
     }
+
+    private static boolean isDivided() {
+        boolean[][] visited = new boolean[N][M];
+
+        int count = 0;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (visited[i][j] || map[i][j] == 0) continue;
+                visited[i][j] = true;
+                bfs(i, j, visited);
+                count++;
+            }
+        }
+
+        return count > 1;
+    }
+
+    private static void bfs(int r, int c, boolean[][] visited) {
+        Queue<int[]> queue = new ArrayDeque<>();
+
+        queue.offer(new int[]{r, c});
+        visited[r][c] = true;
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+
+            int cr = cur[0];
+            int cc = cur[1];
+
+            for (int d = 0; d < 4; d++) {
+                int nr = cr + dr[d];
+                int nc = cc + dc[d];
+
+                if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+                if (visited[nr][nc] || map[nr][nc] == 0) continue;
+
+                visited[nr][nc] = true;
+                queue.offer(new int[]{nr, nc});
+            }
+        }
+    }
+
 
     static class Iceberg {
         int r, c;
