@@ -36,66 +36,56 @@ public class BJ_14890_경사로 {
         br.close();
     }
 
-    private static int solution() {
-        int route = 0;
+     private static int solution() {
+        int count = 0;
 
-        // 가로: N개 행 각각 검사
-        for (int r = 0; r < N; r++) {
-            if (check(map[r])) route++;  // 1차원 배열 하나를 검사
-        }
+        for (int row = 0; row < N; row++) {
+            int[] col = new int[N];
 
-        // 세로: N개 열 각각 검사
-        for (int c = 0; c < N; c++) {
-            // 열을 1차원 배열로 뽑아서 같은 함수로 검사
-            int[] newCol = new int[N];
             for (int i = 0; i < N; i++) {
-                newCol[i] = map[i][c];
+                col[i] = map[i][row];
             }
-            if (check(newCol)) route++;
+
+            if (checking(map[row], new boolean[N])) count++;
+            if (checking(col, new boolean[N])) count++;
         }
 
-        return route;
+        return count;
     }
 
-    private static boolean check(int[] route) {
-        // slope[i]: i번 칸에 경사로가 이미 놓였는지
-        boolean[] isSlope = new boolean[N];
+    private static boolean checking(int[] levels, boolean[] isPlaced) {
 
-        for (int i = 0; i < N - 1; i++) {
+        for (int i = 1; i < N; i++) {
+            int diff = levels[i] - levels[i - 1];
 
-            // 인접한 두 칸에 따라 조건이 분기
-            int diff = route[i] - route[i + 1];
-
-            // 차이 == 0 아무것도 안 함
             if (diff == 0) continue;
 
-            if (diff == 1) { // route[i] - route[i+1] == 1 (내리막)
+            if (diff == 1) { // 오르막
+                if (i - L < 0) return false;
 
-                if (i + L >= N) return false; // 경계 밖
+                for (int j = i - 1; j >= i -L; j--) {
+                    if (isPlaced[j]) return false;
+                    if (levels[j] != levels[i] - 1) return false;
 
-                for (int j = i + 1; j <  i + 1 + L; j++) {
-                    if (isSlope[j]) return false; // 그 L칸에 이미 경사로가 있으면 실패
-
-                    if (route[i + 1] != route[j]) return false; // i + 1부터 L칸이 같은 높이여야 함
-
-                    isSlope[j] = true; // 통과하면 slope 표시
-
+                    isPlaced[j] = true;
                 }
-            } else if (diff == -1) { // route[i] - route[i+1] == -1 (오르막)
 
-                if (i - L + 1 < 0) return false; // 경계 밖
+            } else if (diff == -1) { // 내리막
+                if (i + L > N) return false;
 
-                for (int j = i - L + 1; j <= i; j++) {
-                    if (isSlope[j]) return false; // 그 L칸에 이미 경사로가 있으면 실패
+                for (int j = i; j < i + L; j++) {
+                    if (isPlaced[j]) return false;
+                    if (levels[j] != levels[i - 1] - 1) return false;
 
-                    if (route[i] != route[j]) return false; // i부터 왼쪽으로 L칸이 같은 높이여야 함
-
-                    isSlope[j] = true; // 통과하면 slope 표시
+                    isPlaced[j] = true;
                 }
-            } else return false; // |차이| >= 2, return false
 
+            } else {
+                return false;
+            }
         }
 
         return true;
     }
+
 }
