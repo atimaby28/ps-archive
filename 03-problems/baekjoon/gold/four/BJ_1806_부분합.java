@@ -34,24 +34,21 @@ public class BJ_1806_부분합 {
     }
 
     private static int solution(int[] arr) {
-        int left = 0, right = left + 1;
+        int left = 0, right = 0, sum = 0;
 
-        int sum = 0, len = N;
-        while (left < arr.length) {
+        int len = N;
 
-            sum = arr[left] + arr[right];
+        while (right < N) {
+            sum += arr[right];
+            right++;
 
-            if (sum < S) {
-                right++;
-                sum += arr[right];
-            } else if (sum >= S) {
+            while (sum >= S) {
+                len = Math.min(len, right - left);
                 sum -= arr[left];
                 left++;
-            } else {
-                len = Math.min(len, right - left + 1);
             }
         }
 
-        return len;
+        return len == N ? 0 : len;
     }
 }
