@@ -12,6 +12,8 @@ public class BJ_17779_게리멘더링2 {
     static int N;
     static int[][] map;
 
+    static final int LINE = 5;
+
     public static void main(String[] args) throws Exception {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
         BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(System.out));
@@ -38,15 +40,14 @@ public class BJ_17779_게리멘더링2 {
     private static int solution() {
         int answer = Integer.MAX_VALUE;
 
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < N; j++) {
+        for (int r = 0; r < N; r++) {
+            for (int c = 0; c < N; c++) {
                 for (int d1 = 1; d1 < N; d1++) {
                     for (int d2 = 1; d2 < N; d2++) {
-                        if (i + d1 + d2 >= N) continue; // 아래 경계 한계
-                        if (j - d1 < 0) continue;       // 왼쪽 경계 한계
-                        if (j + d2 >= N) continue;      // 오른쪽 경계 한계
-
-                        answer = Math.min(answer, getMin(i, j, d1, d2 , new int[N][N]));
+                        if (r + d1 + d2 >= N) continue;
+                        if (c - d1 < 0) continue;
+                        if (c + d2 >= N) continue;
+                        answer = Math.min(answer, getMin(r, c, d1, d2, new int[N][N]));
                     }
                 }
             }
@@ -55,61 +56,63 @@ public class BJ_17779_게리멘더링2 {
         return answer;
     }
 
-    private static int getMin(int x, int y, int d1, int d2, int[][] district) {
+    private static int getMin(int r, int c, int d1, int d2, int[][] district) {
         int total = 0, dist1 = 0, dist2 = 0, dist3 = 0, dist4 = 0;
 
         // 경계선 1: top → left (↙ 대각선)
         for (int i = 0; i <= d1; i++) {
-            district[x + i][y - i] = 5;
+            district[r + i][c - i] = LINE;
         }
 
         // 경계선 2: top → right (↘ 대각선)
         for (int i = 0; i <= d2; i++) {
-            district[x + i][y + i] = 5;
+            district[r + i][c + i] = LINE;
         }
 
         // 경계선 3: left → bottom (↘ 대각선)
         for (int i = 0; i <= d2; i++) {
-            district[x + d1 + i][y - d1 + i] = 5;
+            district[r + d1+ i][c - d1 + i] = LINE;
         }
 
         // 경계선 4: right → bottom (↙ 대각선)
         for (int i = 0; i <= d1; i++) {
-            district[x + d2 + i][y + d2 - i] = 5;
+            district[r + d2 + i][c + d2 - i] = LINE;
         }
 
         // 1번 선거구
-        for (int i = 0; i < x + d1; i++) {
-            for (int j = 0; j <= y; j++) {
-                if (district[i][j] == 5) break;
-                dist1 += map[i][j];
+        for (int row = 0; row < r + d1; row++) {
+            for (int col = 0; col <= c; col++) {
+                if (district[row][col] == LINE) break;
+                dist1 += map[row][col];
             }
         }
 
         // 2번 선거구
-        for (int i = 0; i <= x + d2; i++) {
-            for (int j = N - 1; j > y; j--) {
-                if (district[i][j] == 5) break;
-                dist2 += map[i][j];
+        for (int row = 0; row <= r + d2; row++) {
+            for (int col = N - 1; col > c; col--) {
+                if (district[row][col] == LINE) break;
+                dist2 += map[row][col];
             }
         }
         
         // 3번 선거구
-        for (int i = x + d1; i < N; i++) {
-            for (int j = 0; j < y - d1 + d2; j++) {
-                if (district[i][j] == 5) break;
-                dist3 += map[i][j];
+        for (int row = r + d1; row < N; row++) {
+            for (int col = 0; col < c - d1 + d2; col++) {
+                if (district[row][col] == LINE) break;
+                dist3 += map[row][col];
             }
         }
 
         // 4번 선거구
-        for (int i = x + d2 + 1; i < N; i++) {
-            for (int j = N - 1; j >= y - d1 + d2; j--) {
-                if (district[i][j] == 5) break;
-                dist4 += map[i][j];
+        for (int row = r + d2 + 1; row < N; row++) {
+            for (int col = N - 1; col >= c - d1 + d2; col--) {
+                if (district[row][col] == LINE) break;
+                dist4 += map[row][col];
             }
         }
 
+
+        // 전체
         for (int i = 0; i < N; i++) {
             for (int j = 0; j < N; j++) {
                 total += map[i][j];

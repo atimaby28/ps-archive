@@ -17,6 +17,8 @@ public class BJ_16927_배열돌리기2 {
         M = Integer.parseInt(st.nextToken());
         R = Integer.parseInt(st.nextToken());
 
+        map = new int[N][M];
+
         for (int i = 0; i < N; i++) {
             st =  new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
@@ -47,11 +49,15 @@ public class BJ_16927_배열돌리기2 {
 
             for (int r = 0; r < rot; r++) {
                 int temp = map[top][left];
-                for (int i = top; i < bottom; i++) map[i][left] = map[i + 1][left];
-                for (int j = left; j < right; j++) map[bottom][j] = map[bottom][j + 1];
-                for (int i = bottom; i > top; i--) map[i][right] = map[i - 1][right];
-                for (int j = right; j > left + 1; j--) map[top][j] = map[top][j - 1];
-                map[top][left + 1] = temp;
+                // 위쪽 행: ← 왼쪽으로
+                for (int j = left; j < right; j++) map[top][j] = map[top][j + 1];
+                // 오른쪽 열: ↑ 위로
+                for (int i = top; i < bottom; i++) map[i][right] = map[i + 1][right];
+                // 아래쪽 행: → 오른쪽으로
+                for (int j = right; j > left; j--) map[bottom][j] = map[bottom][j - 1];
+                // 왼쪽 열: ↓ 아래로
+                for (int i = bottom; i > top + 1; i--) map[i][left] = map[i - 1][left];
+                map[top + 1][left] = temp;
             }
         }
 
