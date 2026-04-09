@@ -9,6 +9,7 @@ public class BJ_14500_테트로미노 {
     static int[][] map;
     static int maxValue = 0;
     static final int TETROMINO_SIZE = 4;
+    static int maxCell = 0;
 
     static boolean[][] visited;
 
@@ -37,6 +38,7 @@ public class BJ_14500_테트로미노 {
             st = new StringTokenizer(br.readLine());
             for (int j = 0; j < M; j++) {
                 map[i][j] = Integer.parseInt(st.nextToken());
+                maxCell = Math.max(maxCell, map[i][j]);
             }
         }
 
@@ -63,6 +65,8 @@ public class BJ_14500_테트로미노 {
     }
 
     private static void dfs(int r, int c, int depth, int sum) {
+        if (sum + maxCell * (4 - depth) <= maxValue) return;
+
         if (depth == TETROMINO_SIZE) {
             maxValue = Math.max(maxValue, sum);
             return;
