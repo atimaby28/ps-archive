@@ -54,16 +54,14 @@ public class BJ_1520_내리막길 {
 
         if (dp[r][c] != -1) return dp[r][c];
 
-        dp[r][c] = 0;
         for (int d = 0; d < 4; d++) {
             int nr = r + dr[d];
             int nc = c + dc[d];
 
             if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+            if (map[nr][nc] >= map[r][c]) continue;
 
-            if (map[r][c] > map[nr][nc]) {
-                dp[r][c] += dfs(nr, nc, dp);
-            }
+            dp[r][c] += dfs(nr, nc, dp);
         }
 
         return dp[r][c];
