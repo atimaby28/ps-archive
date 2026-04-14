@@ -41,75 +41,77 @@ public class BJ_16234_인구이동 {
     }
 
     private static int solution() {
-        int days = 0;
-
+        int day = 0;
         while (true) {
-            List<Nation> nations;
             boolean[][] visited = new boolean[N][N];
 
-            boolean isMoved = false;
+            List<Nation> nations = new ArrayList<>();
+
+            boolean isMoveded = false;
+            // get diff
             for (int i = 0; i < N; i++) {
                 for (int j = 0; j < N; j++) {
                     if (visited[i][j]) continue;
                     nations = bfs(i, j, visited);
 
-                    if (nations.size() >= 2) {
+                    if (nations.size() > 1) {
                         move(nations);
-                        isMoved = true;
+                        isMoveded = true;
                     }
                 }
             }
 
-            if (!isMoved) break;
+            if (!isMoveded) break;
 
-            // 일자 증가
-            days++;
+
+            day++;
         }
 
-        return days;
+        return day;
     }
 
     private static void move(List<Nation> nations) {
-        int nationCount = nations.size();
+        int size = nations.size();
 
-        int avg = 0;
+        int totalCount = 0;
         for (Nation nation : nations) {
-            avg += map[nation.r][nation.c];
+            totalCount += nation.population;
         }
 
-        avg /= nationCount;
+        int avg = totalCount / size;
 
         for (Nation nation : nations) {
             map[nation.r][nation.c] = avg;
         }
+
     }
 
     private static List<Nation> bfs(int r, int c, boolean[][] visited) {
-        Queue<Nation> queue = new ArrayDeque<>();
+        Queue<int[]> queue = new ArrayDeque<>();
         List<Nation> nations = new ArrayList<>();
 
-        queue.offer(new Nation(r, c));
-        nations.add(new Nation(r, c));
-
+        queue.offer(new int[]{r, c});
+        nations.add(new Nation(r, c, map[r][c]));
         visited[r][c] = true;
 
         while (!queue.isEmpty()) {
-            Nation cur = queue.poll();
+            int[] cur = queue.poll();
+            int cr = cur[0];
+            int cc = cur[1];
 
-            int curR = cur.r;
-            int curC = cur.c;
+            for (int i = 0; i < 4; i++) {
+                int nr = cr + dr[i];
+                int nc = cc + dc[i];
 
-            for (int d = 0; d < 4; d++) {
-                int newR = curR + dr[d];
-                int newC = curC + dc[d];
+                if (nr < 0 || nr >= N || nc < 0 || nc >= N) continue;
+                if (visited[nr][nc]) continue;
 
-                if (newR < 0 || newR >= N || newC < 0 || newC >= N) continue;
-                if (visited[newR][newC]) continue;
-
-                if (canMove(curR, curC, newR, newC)) {
-                    nations.add(new Nation(newR, newC));
-                    visited[newR][newC] = true;
-                    queue.offer(new Nation(newR, newC));
+                // check logic
+                int diff = Math.abs(map[nr][nc] - map[cr][cc]);
+                if (diff >= L && diff <= R) {
+                    visited[nr][nc] = true;
+                    queue.offer(new int[]{nr, nc});
+                    nations.add(new Nation(nr, nc, map[nr][nc]));
                 }
             }
         }
@@ -117,16 +119,15 @@ public class BJ_16234_인구이동 {
         return nations;
     }
 
-    private static boolean canMove(int curR, int curC, int newR, int newC) {
-        return Math.abs(map[curR][curC] - map[newR][newC]) >= L && Math.abs(map[curR][curC] - map[newR][newC]) <= R;
-    }
-
     static class Nation {
         int r, c;
+        int population;
 
-        Nation(int r, int c) {
+        public Nation(int r, int c, int population) {
             this.r = r;
             this.c = c;
+            this.population = population;
         }
     }
+
 }

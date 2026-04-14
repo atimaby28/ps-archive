@@ -44,83 +44,42 @@ public class BJ_2573_빙산 {
     }
 
     private static int solution() {
-        int year = 1;
+        int time = 0;
 
-        while (!icebergs.isEmpty()) {
-            int size = icebergs.size();
-
-            List<Iceberg> melt = new ArrayList<>();
-
-            // melting check
-            for (int i = 0; i < size; i++) {
-                Iceberg cur = icebergs.poll();
-
-                int surface = 0;
-                for (int d = 0; d < 4; d++) {
-                    int nr = cur.r + dr[d];
-                    int nc = cur.c + dc[d];
-
-                    if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
-                    if (map[nr][nc] != 0) continue;
-
-                    surface++;
-                }
-                if (cur.height - surface > 0) {
-                    icebergs.offer(new Iceberg(cur.r, cur.c, cur.height - surface));
-                } else {
-                    melt.add(cur);
+        while (true) {
+            // 1. 연결 요소 세기
+            boolean[][] visited = new boolean[N][M];
+            int count = 0;
+            for (int i = 0; i < N; i++) {
+                for (int j = 0; j < M; j++) {
+                    if (visited[i][j] || map[i][j] == 0) continue;
+                    bfs(i, j, visited);
+                    count++;
                 }
             }
 
-            for (Iceberg ib : melt) {
-                map[ib.r][ib.c] = 0;
-            }
+            // 2. 분리됐으면 답
+            if (count >= 2) return time;
+            // 3. 다 녹았으면 0
+            if (count == 0) return 0;
 
-            // melting
-            for (Iceberg ib : icebergs) {
-                map[ib.r][ib.c] = ib.height;
-            }
-
-            // isDivided
-            if (isDivided()) return year;
-
-            year++;
+            // 4. 녹이기 (세기 끝난 후)
+            melt();
+            time++;
         }
 
-        return 0;
-    }
-
-    private static boolean isDivided() {
-        boolean[][] visited = new boolean[N][M];
-
-        int count = 0;
-        for (int i = 0; i < N; i++) {
-            for (int j = 0; j < M; j++) {
-                if (visited[i][j] || map[i][j] == 0) continue;
-                visited[i][j] = true;
-                bfs(i, j, visited);
-                count++;
-            }
-        }
-
-        return count > 1;
     }
 
     private static void bfs(int r, int c, boolean[][] visited) {
         Queue<int[]> queue = new ArrayDeque<>();
-
         queue.offer(new int[]{r, c});
         visited[r][c] = true;
 
         while (!queue.isEmpty()) {
             int[] cur = queue.poll();
-
-            int cr = cur[0];
-            int cc = cur[1];
-
             for (int d = 0; d < 4; d++) {
-                int nr = cr + dr[d];
-                int nc = cc + dc[d];
+                int nr = cur[0] + dr[d];
+                int nc = cur[1] + dc[d];
 
                 if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
                 if (visited[nr][nc] || map[nr][nc] == 0) continue;
@@ -131,15 +90,37 @@ public class BJ_2573_빙산 {
         }
     }
 
+    private static void melt() {
+        int[][] adj = new int[N][M]; // 인접 바다 수
 
-    static class Iceberg {
-        int r, c;
-        int height;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (map[i][j] == 0) continue;
+                for (int d = 0; d < 4; d++) {
+                    int nr = i + dr[d];
+                    int nc = j + dc[d];
+                    if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+                    if (map[nr][nc] == 0) adj[i][j]++;
+                }
+            }
+        }
 
-        public Iceberg(int r, int c, int height) {
-            this.r = r;
-            this.c = c;
-            this.height = height;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                map[i][j] = Math.max(0, map[i][j] - adj[i][j]);
+            }
         }
     }
+
+
+    static class Iceberg {
+        int r, c, size;
+
+        public Iceberg(int r, int c, int size) {
+            this.r = r;
+            this.c = c;
+            this.size = size;
+        }
+    }
+
 }
