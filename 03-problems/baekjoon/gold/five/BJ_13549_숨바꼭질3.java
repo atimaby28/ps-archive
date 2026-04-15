@@ -47,14 +47,22 @@ public class BJ_13549_숨바꼭질3 {
 
             if (position == K) return time;
 
-            int[] positions = {position - 1, position + 1, position * 2};
+            int tp = position * 2;
+            if (tp >= 0 && tp <= 100_000 && !visited[tp]) {
+                visited[tp] = true;
+                queue.addFirst(new int[]{tp, time});
+            }
 
-            for (int p : positions) {
-                if (p < 0 || p > 100_000 || visited[p]) continue;
-                visited[p] = true;
-                queue.addLast(new int[]{positions[0], time + 1});
-                queue.addLast(new int[]{positions[1], time + 1});
-                queue.addFirst(new int[]{positions[2], time});
+            int left = position - 1;
+            if (left >= 0 && left <= 100_000 && !visited[left]) {
+                visited[left] = true;
+                queue.addLast(new int[]{left, time + 1});
+            }
+
+            int right = position + 1;
+            if (right >= 0 && right <= 100_000 && !visited[right]) {
+                visited[right] = true;
+                queue.addLast(new int[]{right, time + 1});
             }
 
         }
