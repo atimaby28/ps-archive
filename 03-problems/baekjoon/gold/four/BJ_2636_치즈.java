@@ -40,22 +40,16 @@ public class BJ_2636_치즈 {
     }
 
     private static String solution() {
+        int time = 0;
+
         StringBuilder sb = new StringBuilder();
 
-        int count = 0, time = 0;
+        int count = 0;
         while (true) {
-
-            // cheese
-            List<int[]> cheese = bfs(0, 0);
-
+            List<int[]> cheese = bfs(0, 0, new boolean[N][M]);
             if (cheese.isEmpty()) break;
 
-            count = cheese.size();
-
-            // melting
-            for (int[] pos : cheese) {
-                map[pos[0]][pos[1]] = 0;
-            }
+            count = melting(cheese);
 
             time++;
         }
@@ -63,12 +57,23 @@ public class BJ_2636_치즈 {
         sb.append(time).append("\n").append(count);
 
         return sb.toString();
+
     }
 
-    private static List<int[]> bfs(int r, int c) {
+    private static int melting(List<int[]> cheese) {
+        int count = 0;
+
+        for (int[] c : cheese) {
+            map[c[0]][c[1]] = 0;
+            count++;
+        }
+
+        return count;
+    }
+
+    private static List<int[]> bfs(int r, int c, boolean[][] visited) {
         Queue<int[]> queue = new ArrayDeque<>();
         List<int[]> cheese = new ArrayList<>();
-        boolean[][] visited = new boolean[N][M];
 
         queue.offer(new int[]{r, c});
         visited[r][c] = true;
@@ -79,20 +84,25 @@ public class BJ_2636_치즈 {
             int cr = cur[0];
             int cc = cur[1];
 
-            for (int d = 0; d < 4; d++) {
-                int nr = cr + dr[d];
-                int nc = cc + dc[d];
+            for (int i = 0; i < 4; i++) {
+                int nr = cr + dr[i];
+                int nc = cc + dc[i];
 
                 if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
                 if (visited[nr][nc]) continue;
 
                 visited[nr][nc] = true;
-                if (map[nr][nc] == 1) cheese.add(new int[]{nr, nc});
-                else queue.offer(new int[]{nr, nc});
-            }
 
+                if (map[nr][nc] == 1) {
+                    cheese.add(new int[]{nr, nc});
+                } else {
+                    queue.offer(new int[]{nr, nc});
+                }
+
+            }
         }
 
         return cheese;
     }
+
 }
