@@ -7,7 +7,7 @@ public class BJ_20055_컨베이어벨트위의로봇 {
 
     static int N, K;
     static int[][] belt;
-    static boolean[] robotPos;
+    static boolean[][] robotPos;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -41,74 +41,71 @@ public class BJ_20055_컨베이어벨트위의로봇 {
     }
 
     private static int solution() {
-        int rotation = 0;
-
-        robotPos = new boolean[N];
+        int steps = 1;
+        robotPos = new boolean[2][N];
 
         while (true) {
-            rotation++;
-
-            // 벨트 이동
-            moveBelt();
-
-            // 로봇 이동
-            moveRobot();
-
-            // 로봇 올리기
-            if (!robotPos[0] && belt[0][0] > 0) {
-                robotPos[0] = true;
-                belt[0][0]--;
+            // 벨트의 회전
+            // 윗줄
+            int beltTop = belt[0][N - 1];
+            boolean robotTop = robotPos[0][N - 1];
+            for (int i = N - 1; i > 0; i--) {
+                belt[0][i] = belt[0][i - 1];
+                robotPos[0][i] = robotPos[0][i - 1];
             }
 
-            // 0의 갯수 >= K이면 종료
-            int zeroDurability = 0;
-            for (int i = 0; i < 2; i++) {
-                for (int j = 0; j < N; j++) {
-                    if (belt[i][j] == 0) zeroDurability++;
+            // 아랫줄
+            int beltBottom = belt[1][0];
+            boolean robotBottom = robotPos[1][0];
+            for (int i = 0; i < N - 1; i++) {
+                belt[1][i] = belt[1][i + 1];
+                robotPos[1][i] = robotPos[1][i + 1];
+            }
+
+            belt[0][0] = beltBottom;
+            belt[1][N - 1] = beltTop;
+
+            robotPos[0][0] = robotBottom;
+            robotPos[1][N - 1] = robotTop;
+
+            robotPos[0][N - 1] = false;
+
+            // 로봇의 추가 이동
+            for (int i = N - 1; i > 0; i--) {
+                if (belt[0][i] > 0 && !robotPos[0][i] && robotPos[0][i - 1]){
+                    robotPos[0][i] = robotPos[0][i - 1];
+                    robotPos[0][i-1] = false;
+                    belt[0][i]--;
+                }
+
+            }
+
+            for (int i = 0; i < N - 1; i++) {
+                if (belt[1][i] > 0 && !robotPos[1][i] && robotPos[1][i + 1]) {
+                    robotPos[1][i] = robotPos[1][i + 1];
+                    belt[1][i]--;
                 }
             }
 
-            if (zeroDurability >= K) break;
-
-        }
-
-        return rotation;
-    }
-
-    private static void moveRobot() {
-        // 밸트와 회전
-        for (int i = N - 1; i > 0; i--) {
-            robotPos[i] = robotPos[i - 1];
-        }
-
-        robotPos[0] = false;
-        if (robotPos[N - 1]) robotPos[N - 1] = false;
-
-        // 가능하면 자체이동
-        for (int i = N - 1; i > 0; i--) {
-            if (robotPos[i - 1] && !robotPos[i] && belt[0][i] > 0) {
-                robotPos[i] = true;
-                robotPos[i - 1] = false;
-                belt[0][i]--;
+            if (belt[0][0] > 0 && !robotPos[0][0]) {
+                robotPos[0][0] = true;
+                belt[0][0]--;
             }
+
+            robotPos[0][N - 1] = false;
+
+            // count
+            int count = 0;
+            for (int i = 0; i < N; i++) {
+                if (belt[0][i] == 0) count++;
+                if (belt[1][N - 1 - i] == 0) count++;
+            }
+
+            if (count >= K) break;
+            steps++;
         }
 
-        if (robotPos[N - 1]) robotPos[N - 1] = false;
+        return steps;
     }
 
-    private static void moveBelt() {
-        int down = belt[0][N - 1];
-        int up = belt[1][0];
-
-        for (int i = N - 1; i > 0; i--) {
-            belt[0][i] = belt[0][i - 1];
-        }
-
-        for (int i = 0; i < N - 1; i++) {
-            belt[1][i] = belt[1][i + 1];
-        }
-
-        belt[1][N - 1] = down;
-        belt[0][0] = up;
-    }
 }

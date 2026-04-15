@@ -6,7 +6,6 @@ import java.util.*;
 public class BJ_13549_숨바꼭질3 {
 
     static int N, K;
-    static int[] positions;
 
     public static void main(String[] args) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
@@ -28,7 +27,6 @@ public class BJ_13549_숨바꼭질3 {
     }
 
     private static int solution() {
-        positions = new int[100_001];
         return bfs();
     }
 
