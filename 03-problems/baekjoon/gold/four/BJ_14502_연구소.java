@@ -49,75 +49,71 @@ public class BJ_14502_연구소 {
     }
 
     private static int solution() {
-        permutation(0, 0);
+        permutation(0);
 
         return size;
     }
 
-    private static void permutation(int depth, int position) {
+    private static void permutation(int depth) {
         if (depth == LIMIT) {
-            int[][] labCopy = new int[N][M];
-
-            for (int i = 0; i < N; i++) {
-                labCopy[i] = lab[i].clone();
-            }
-
-            spread(labCopy);
-            size = Math.max(size, count(labCopy));
+            int[][] spreadMap = spread(virus);
+            size = Math.max(size, getSize(spreadMap));
             return;
         }
 
-        for (int i = position; i < N * M; i++) {
+        for (int i = 0; i < N * M; i++) {
             int row = i / M;
             int col = i % M;
 
-            if (lab[row][col] == 1 || lab[row][col] == 2) continue;
-
-            lab[row][col] = 1;
-            permutation(depth + 1, i + 1);
-            lab[row][col] = 0;
-        }
-    }
-
-    // 0: empty, 1: wall, 2: virus
-    private static void spread(int[][] labCopy) {
-        Queue<int[]> queue = new LinkedList<>(virus);
-
-        while (!queue.isEmpty()) {
-
-            int size = queue.size();
-
-            for (int i = 0; i < size; i++) {
-                int[] virusPos = queue.poll();
-
-                int row = virusPos[0];
-                int col = virusPos[1];
-
-                for (int d = 0; d < 4; d++) {
-                    int newRow = row + dr[d];
-                    int newCol = col + dc[d];
-
-                    if (newRow < 0 || newRow >= N || newCol < 0 || newCol >= M) continue;
-                    if (labCopy[newRow][newCol] == 1 || labCopy[newRow][newCol] == 2) continue;
-
-                    labCopy[newRow][newCol] = 2;
-                    queue.offer(new int[]{newRow, newCol});
-                }
+            if (lab[row][col] == 0) {
+                lab[row][col] = 1;
+                permutation(depth + 1);
+                lab[row][col] = 0;
             }
         }
-
     }
 
-    private static int count(int[][] labCopy) {
+    private static int getSize(int[][] spreadMap) {
         int count = 0;
 
-        for (int r = 0; r < N; r++) {
-            for (int c = 0; c < M; c++) {
-                if (labCopy[r][c] == 0) count++;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < M; j++) {
+                if (spreadMap[i][j] == 0) count++;
             }
         }
 
         return count;
+    }
+
+    private static int[][] spread(List<int[]> virus) {
+        Queue<int[]> queue = new LinkedList<>();
+        int[][] spreadMap = new int[N][M];
+
+        for (int i = 0; i < N; i++) {
+            spreadMap[i] = lab[i].clone();
+        }
+
+        for (int[] v : virus) {
+            queue.offer(v);
+        }
+
+        while (!queue.isEmpty()) {
+            int[] cur = queue.poll();
+
+            for (int i = 0; i < 4; i++) {
+                int nr = cur[0] + dr[i];
+                int nc = cur[1] + dc[i];
+
+                if (nr < 0 || nr >= N || nc < 0 || nc >= M) continue;
+                if (spreadMap[nr][nc] == 1 || spreadMap[nr][nc] == 2) continue;
+
+                spreadMap[nr][nc] = 2;
+                queue.offer(new int[]{nr, nc});
+
+            }
+        }
+
+        return spreadMap;
     }
 
 }

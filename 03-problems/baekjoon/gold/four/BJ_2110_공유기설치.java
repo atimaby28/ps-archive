@@ -35,33 +35,38 @@ public class BJ_2110_공유기설치 {
     }
 
     private static long solution() {
-        long answer = 0;
+        int answer = 0;
 
         Arrays.sort(houses);
 
-        // 인접 공유기 사이의 최솟값의 범위
-        long left = 1, right = houses[N - 1] - houses[0];
+        // mid = 두 공유기 사이의 거리
+        int lo = 1, hi = houses[N - 1] - houses[0];
 
-        while (left <= right) {
-            // 인접 공유기 사이의 최솟값
-            long mid = left + (right - left) / 2;
+        while (lo <= hi) {
+            int mid = lo + (hi - lo) / 2;
 
-            int count = 1, lastPos = 0;
-            for (int i = 1; i < N; i++) {
-                if (houses[i] - houses[lastPos] >= mid) {
-                    count++;
-                    lastPos = i;
-                }
-            }
-
-            if (count < C) {
-                right = mid - 1;
-            } else {
+            if (canInstall(mid)) {
                 answer = mid;
-                left = mid + 1;
+                lo = mid + 1;
+            } else {
+                hi = mid - 1;
             }
         }
 
         return answer;
+
+    }
+
+    private static boolean canInstall(int mid) {
+        int count = 1;           // 첫 집에 무조건 하나 설치
+        int last = houses[0];    // 마지막 설치 위치
+
+        for (int i = 0; i < N - 1; i++) {
+            if (houses[i + 1] - last >= mid) {
+                count++;
+                last = houses[i + 1];
+            }
+        }
+        return count >= C;
     }
 }
