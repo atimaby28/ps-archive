@@ -25,7 +25,7 @@ public class PG_level2_행렬테두리회전하기 {
             queries[i][3] = Integer.parseInt(st.nextToken());
         }
 
-        int result = solution(rows, columns, queries);
+        int[] result = solution(rows, columns, queries);
 
         bw.write(result + "\n");
 
