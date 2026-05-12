@@ -14,7 +14,7 @@ public class LC_medium_59 {
         int[][] result = solution(n);
 
         bw.write(result + "\n");
-        
+
         bw.flush();
 
         bw.close();
@@ -29,9 +29,9 @@ public class LC_medium_59 {
         int r = 0, c = 0, dir = 0;
 
         for (int num = 1; num <= n * n; num++) {
-            grid[r][c] = num;          // ① 먼저 현재 칸에 적기
+            grid[r][c] = num;
 
-            int nr = r + dr[dir];      // ② 다음 위치
+            int nr = r + dr[dir];
             int nc = c + dc[dir];
 
             if (nr < 0 || nr >= n || nc < 0 || nc >= n || grid[nr][nc] != 0) {
@@ -40,7 +40,7 @@ public class LC_medium_59 {
                 nc = c + dc[dir];
             }
 
-            r = nr; c = nc;            // ③ 이동
+            r = nr; c = nc;
         }
 
         return grid;
